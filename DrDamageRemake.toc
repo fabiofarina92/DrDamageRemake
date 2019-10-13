@@ -18,6 +18,10 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\LibGratuity-3.0\lib.xml
 #@end-no-lib-strip@
 
+# Utils
+utils\Utils.lua
+
+# Classes
 Classes\Druid.lua
 Classes\Hunter.lua
 Classes\Mage.lua
