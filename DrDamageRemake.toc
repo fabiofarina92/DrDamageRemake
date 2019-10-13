@@ -10,7 +10,6 @@ DrDamageRemake.lua
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\BugGrabber\load.xml
 libs\AceAddon-3.0\AceAddon-3.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\AceHook-3.0\AceHook-3.0.xml
@@ -19,4 +18,12 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\LibGratuity-3.0\lib.xml
 #@end-no-lib-strip@
 
+Classes\Druid.lua
+Classes\Hunter.lua
+Classes\Mage.lua
 Classes\Paladin.lua
+Classes\Priest.lua
+Classes\Rogue.lua
+Classes\Shaman.lua
+Classes\Warlock.lua
+Classes\Warrior.lua
