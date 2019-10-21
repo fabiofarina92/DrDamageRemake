@@ -6,17 +6,18 @@ local Utils = DrDamageRemake
 function DrDamageRemake:PlayerData()
     self.classColour = 'e3e3e3'
     self.spellInfo = {
-        [585] = {
+        ['Smite'] = {
             ["name"] = "Smite",
-            ["id"] = 585,
-            ["rank"] = 1,
-            ["data"] = {
-                lowerBound = 13,
-                upperBound = 17,
-                cost = 20,
-                castTime = 1.5,
-                mod = 0.10,
-                cooldown = {standard = 0, gcd = 1.5}
+            [585] = {
+                ["rank"] = 1,
+                ["data"] = {
+                    lowerBound = 13,
+                    upperBound = 17,
+                    cost = 20,
+                    castTime = 1.5,
+                    mod = 0.10,
+                    cooldown = { standard = 0, gcd = 1.5 }
+                },
             },
             ["info"] = {school = {"Holy"}},
             ["toolTipData"] = {

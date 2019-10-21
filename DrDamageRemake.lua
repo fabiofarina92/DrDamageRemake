@@ -40,8 +40,10 @@ local string_len = string.len
 local select = select
 local next = next
 
+
 -- Module
 local GameTooltip = GameTooltip
+local Utils = DrDamageRemake
 
 -- Module variables
 local playerCompatible, playerEvents, DrD_Font, updateSetItems, dmgMod
@@ -91,20 +93,23 @@ end
 
 function DrDamageRemake:ProcessOnShow(tooltip, ...)
     local id = select(2, tooltip:GetSpell())
+    local name = select(1, tooltip:GetSpell())
 
-    if id then
+    if name and id then
         tooltip:AddLine(' ')
         addLine(tooltip, "Id", id)
-        if spellInfo[id] then
-            local details = spellInfo[id]
+        addLine(tooltip, "Name", name)
+        if spellInfo[name] then
+            local details = spellInfo[name]
             local tooltipData = details["toolTipData"]
 
-            addLine(tooltip, "Name", details["name"])
-            addLine(tooltip, "Rank", details["rank"])
+            addLine(tooltip, "Rank", details[id]["rank"])
 
             for i, v in ipairs(tooltipData) do
-                addLine(tooltip, v.label, v.calculation(details["data"]), v.type)
+                addLine(tooltip, v.label, v.calculation(details[id]["data"]), v.type)
             end
+
+            Utils:MainHandDamage()
 
         end
 
