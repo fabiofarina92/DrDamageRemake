@@ -8,6 +8,7 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local GetSpellCritChance = GetSpellCritChance
 local math_floor = math.floor
+local UnitLevel = UnitLevel
 
 function DrDamageRemake:GetCurrentAttackPower(baseAp)
     local base, posBuff, negBuff = UnitAttackPower("player")
@@ -27,8 +28,18 @@ function DrDamageRemake:DefaultDamageCalculationAmount(data)
     return calculation
 end
 
+function DrDamageRemake:DefaultSpellDamageCalculationAmount(lowerBound, upperBound, modifier)
+    local average = math_floor((lowerBound + upperBound) / 2)
+    local calculation = average + modifier
+    return calculation
+end
+
 function DrDamageRemake:DefaultCritDamageCalculationAmount(data, critModifier)
     return self:DefaultDamageCalculationAmount(data) * critModifier
+end
+
+function DrDamageRemake:DefaultSpellCritDamageCalculationAmount(damage, critModifier)
+    return damage * critModifier;
 end
 
 function DrDamageRemake:DamagePerPowerCost(damage, cost)
@@ -82,4 +93,25 @@ function DrDamageRemake:OffHandDamage()
 
         return { min = minOffHandDamage, max = maxOffHandDamage, base = offhandBaseDamage, full = offhandFullDamage, dps = offhandDamagePerSecond, spread = damageSpread }
     end
+end
+
+function DrDamageRemake:GetSpellDamageRange(min, max, baseLowerBound, baseUpperBound)
+    local level = UnitLevel('player')
+
+    local lower = 0
+    local upper = 0
+    local oddCount = 0;
+    local evenCount = 0;
+
+    if min % 2 == 0 then lower = min + 1 else lower = min end
+    if level % 2 == 0 then upper = level - 1 else upper = level end
+    oddCount = math_floor((upper - lower) / 2) + 1
+
+
+    if min % 2 == 0 then lower = min else lower = min + 1 end
+    if level % 2 == 0 then upper = level else upper = level - 1 end
+    evenCount = math_floor((upper - lower) / 2) + 1
+
+
+    return { newLower = baseLowerBound + oddCount, newUpper = baseUpperBound + evenCount }
 end
