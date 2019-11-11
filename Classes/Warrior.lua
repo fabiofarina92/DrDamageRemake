@@ -219,6 +219,17 @@ function DrDamageRemake:PlayerData()
         ['Shield Slam'] = {
             ["name"] = "Shield Slam",
             ["id"] = 23923,
+            [23925] = {
+                ["rank"] = 4,
+                ["data"] = {
+                    lowerBound = 342,
+                    upperBound = 358,
+                    rageCost = 20,
+                    castTime = 0,
+                    mod = 0,
+                    cooldown = { standard = 6, gcd = 1.5 }
+                },
+            },
             [23923] = {
                 ["rank"] = 2,
                 ["data"] = {
