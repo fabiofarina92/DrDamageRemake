@@ -103,10 +103,12 @@ function DrDamageRemake:ProcessOnShow(tooltip, ...)
             local details = spellInfo[name]
             local tooltipData = details["toolTipData"]
 
-            addLine(tooltip, "Rank", details[id]["rank"])
+            self:ParseTooltip(tooltip, spellInfo[name])
+
+            --            addLine(tooltip, "Rank", details[id]["rank"])
 
             for i, v in ipairs(tooltipData) do
-                addLine(tooltip, v.label, v.calculation(details[id]["data"]), v.type)
+                addLine(tooltip, v.label, v.calculation(details["data"]), v.type)
             end
 
             Utils:MainHandDamage()
@@ -116,5 +118,66 @@ function DrDamageRemake:ProcessOnShow(tooltip, ...)
     end
 
     self.hooks[GameTooltip]["OnTooltipSetSpell"](tooltip, ...)
+end
+
+function DrDamageRemake:ParseTooltip(tooltip, spell)
+    local matcher
+    if spell["match"] then
+        local frame, text
+        for i = 1, 15 do
+            frame = _G[tooltip:GetName() .. "TextRight" .. i]
+            if frame then
+                text = frame:GetText()
+                if text then
+                    if matcher and text:match(matcher) then
+                        local cooldown = text:match(matcher)
+                        spell["data"].cooldown.standard = tonumber(cooldown)
+                    end
+                end
+            end
+        end
+        for i = 1, 15 do
+            frame = _G[tooltip:GetName() .. "TextLeft" .. i]
+            if frame then
+                text = frame:GetText()
+                if text then
+                    matcher = spell["match"]['damageRange']
+                    if matcher and text:match(matcher) then
+                        local lowerBound, upperBound = text:match(matcher)
+                        spell["data"].lowerBound = tonumber(lowerBound)
+                        spell["data"].upperBound = tonumber(upperBound)
+                    end
+                    matcher = spell["match"]['cost']
+                    if matcher and text:match(matcher) then
+                        local cost = text:match(matcher)
+                        spell["data"].rageCost = tonumber(cost)
+                    end
+                    matcher = spell["match"]['damage']
+                    if matcher and text:match(matcher) then
+                        local damage = text:match(matcher)
+                        spell["data"].lowerBound = tonumber(damage)
+                        spell["data"].upperBound = tonumber(damage)
+                        spell["data"].damage = tonumber(damage)
+                    end
+                    matcher = spell["match"]['damageOverTime']
+                    if matcher and text:match(matcher) then
+                        local total, duration = text:match(matcher)
+                        spell["data"].dot.total = tonumber(total)
+                        spell["data"].dot.duration = tonumber(duration)
+                    end
+                    matcher = spell["match"]['extra']
+                    if matcher and text:match(matcher) then
+                        local extra = text:match(matcher)
+                        spell["data"].extra = tonumber(extra)
+                    end
+                    matcher = spell["match"]['cast']
+                    if matcher and text:match(matcher) then
+                        local extra = text:match(matcher)
+                        spell["data"].castTime = tonumber(extra)
+                    end
+                end
+            end
+        end
+    end
 end
 

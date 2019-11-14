@@ -17,17 +17,14 @@ function DrDamageRemake:PlayerData()
     self.classColour = 'bf5d39'
     self.spellInfo = {
         ['Hamstring'] = {
-            ["name"] = "Hamstring",
-            [1715] = {
-                ["rank"] = 1,
-                ["data"] = {
-                    lowerBound = 5,
-                    upperBound = 5,
-                    rageCost = 10,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 0, gcd = 1.5 }
-                },
+            ["match"] = {
+                ["damage"] = 'causing (%d+) damage',
+                ["cooldown"] = '(%d+) sec cooldown',
+                ["cost"] = '(%d+) Rage'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
             },
             ["info"] = { school = { "Physical" } },
             ["toolTipData"] = {
@@ -35,14 +32,16 @@ function DrDamageRemake:PlayerData()
                     label = "Average",
                     type = 'Damage',
                     calculation = (function(data)
-                        return Utils:DefaultDamageCalculationAmount(data)
+                        return string.format("%s",
+                            Utils:DefaultDamageCalculationAmount(data))
                     end)
                 },
                 [2] = {
                     label = "Crit",
                     type = 'Damage',
                     calculation = (function(data)
-                        return Utils:DefaultCritDamageCalculationAmount(data, critModifier)
+                        return string.format("%s",
+                            Utils:DefaultCritDamageCalculationAmount(data, critModifier))
                     end)
                 },
                 [3] = {
@@ -63,19 +62,177 @@ function DrDamageRemake:PlayerData()
                 }
             }
         },
-        ['Overpower'] = {
-            ["name"] = "Overpower",
-            [11585] = {
-                ["rank"] = 4,
-                ["data"] = {
-                    extra = 35,
-                    lowerBound = 0,
-                    upperBound = 0,
-                    rageCost = 5,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 10, gcd = 1.5 }
+        ['Mocking Blow'] = {
+            ["match"] = {
+                ["damage"] = 'causes (%d+) damage',
+                ["cooldown"] = '(%d+) sec cooldown',
+                ["cost"] = '(%d+) Rage'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
+            },
+            ["info"] = { school = { "Physical" } },
+            ["toolTipData"] = {
+                [1] = {
+                    label = "Average",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        return string.format("%s",
+                            Utils:DefaultDamageCalculationAmount(data))
+                    end)
                 },
+                [2] = {
+                    label = "Crit",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        return string.format("%s",
+                            Utils:DefaultCritDamageCalculationAmount(data, critModifier))
+                    end)
+                },
+                [3] = {
+                    label = "DPR",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local baseDamage = Utils:DefaultDamageCalculationAmount(data)
+                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                    end)
+                },
+                [4] = {
+                    label = "DPS",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local baseDamage = Utils:DefaultDamageCalculationAmount(data)
+                        return Utils:DamagePerSecond(baseDamage, data)
+                    end)
+                }
+            }
+        },
+        ['Execute'] = {
+            ["match"] = {
+                ["extra"] = 'rage into (%d+)',
+                ["damage"] = 'causing (%d+) damage',
+                ["cost"] = '(%d+) Rage',
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
+            },
+            ["info"] = { school = { "Physical" } },
+            ["toolTipData"] = {
+                [1] = {
+                    label = "Average at 15 rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = 15
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+                [2] = {
+                    label = "Average at 30 rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = 30
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+                [3] = {
+                    label = "Average at 45 rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = 45
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+                [4] = {
+                    label = "Average at 60 rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = 60
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+                [5] = {
+                    label = "Average at 100 rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = 100
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+                [6] = {
+                    label = "Average at current rage",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local rage = UnitPower('player');
+                        if rage < data.rageCost then
+                            return 'Insufficient rage'
+                        end
+                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        return string.format('%s (%s)', amount, amount * critModifier)
+                    end)
+                },
+            }
+        },
+        ['Overpower'] = {
+            ["match"] = {
+                ["extra"] = 'damage plus (%d+)',
+                ["cost"] = '(%d+) Rage',
+                ["cooldown"] = '(%d+) sec cooldown'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
+            },
+            ["info"] = { school = { "Physical" } },
+            ["toolTipData"] = {
+                [1] = {
+                    label = "Average",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        return round(mainHandDamage.base, 2) + data.extra;
+                    end)
+                },
+                [2] = {
+                    label = "Crit",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        return round((mainHandDamage.base + data.extra) * critModifier, 2);
+                    end)
+                },
+                [3] = {
+                    label = "DPR",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local damage = Utils:MainHandDamage()
+                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.rageCost)
+                    end)
+                },
+                [4] = {
+                    label = "DPS",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local damage = Utils:MainHandDamage()
+                        return Utils:DamagePerSecond(damage.base + data.extra, data)
+                    end)
+                }
+            }
+        },
+        ['Heroic Strike'] = {
+            ["match"] = {
+                ["extra"] = 'damage by (%d+)',
+                ["cost"] = '(%d+) Rage'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
             },
             ["info"] = { school = { "Physical" } },
             ["toolTipData"] = {
@@ -114,19 +271,14 @@ function DrDamageRemake:PlayerData()
             }
         },
         ['Slam'] = {
-            ["name"] = "Slam",
-            ["id"] = 11605,
-            [11605] = {
-                ["rank"] = 4,
-                ["data"] = {
-                    extra = 87,
-                    lowerBound = 0,
-                    upperBound = 0,
-                    rageCost = 15,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 10, gcd = 1.5 }
-                },
+            ["match"] = {
+                ["extra"] = 'damage plus (%d+)',
+                ["cost"] = '(%d+) Rage',
+                ["cast"] = '(%d+) sec cast'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
             },
             ["info"] = { school = { "Physical" } },
             ["toolTipData"] = {
@@ -216,30 +368,64 @@ function DrDamageRemake:PlayerData()
                 }
             }
         },
-        ['Shield Slam'] = {
-            ["name"] = "Shield Slam",
-            ["id"] = 23923,
-            [23925] = {
-                ["rank"] = 4,
-                ["data"] = {
-                    lowerBound = 342,
-                    upperBound = 358,
-                    rageCost = 20,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 6, gcd = 1.5 }
-                },
+        ['Revenge'] = {
+            ["match"] = {
+                ["damageRange"] = '(%d+) to (%d+)',
+                ["cooldown"] = '(%d+) sec cooldown',
+                ["cost"] = '(%d+) Rage'
             },
-            [23923] = {
-                ["rank"] = 2,
-                ["data"] = {
-                    lowerBound = 264,
-                    upperBound = 276,
-                    rageCost = 20,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 6, gcd = 1.5 }
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
+            },
+            ["info"] = { school = { "Physical" } },
+            ["toolTipData"] = {
+                [1] = {
+                    label = "Average",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        return string.format("%s (%s - %s)",
+                            Utils:DefaultDamageCalculationAmount(data), (data.lowerBound),
+                            (data.upperBound))
+                    end)
                 },
+                [2] = {
+                    label = "Crit",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        return string.format("%s (%s - %s)",
+                            Utils:DefaultCritDamageCalculationAmount(data, critModifier),
+                            (data.lowerBound * critModifier),
+                            (data.upperBound * critModifier))
+                    end)
+                },
+                [3] = {
+                    label = "DPR",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local baseDamage = Utils:DefaultDamageCalculationAmount(data)
+                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                    end)
+                },
+                [4] = {
+                    label = "DPS",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local baseDamage = Utils:DefaultDamageCalculationAmount(data)
+                        return Utils:DamagePerSecond(baseDamage, data)
+                    end)
+                }
+            }
+        },
+        ['Shield Slam'] = {
+            ["match"] = {
+                ["damageRange"] = '(%d+) to (%d+)',
+                ["cooldown"] = '(%d+) sec cooldown',
+                ["cost"] = '(%d+) Rage'
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
             },
             ["info"] = { school = { "Physical" } },
             ["toolTipData"] = {
@@ -343,17 +529,15 @@ function DrDamageRemake:PlayerData()
         },
         ['Rend'] = {
             ["name"] = "Rend",
-            [11574] = {
-                ["rank"] = 7,
-                ["data"] = {
-                    dot = { total = 147, duration = 21, interval = 3 },
-                    lowerBound = 0,
-                    upperBound = 0,
-                    rageCost = 10,
-                    castTime = 0,
-                    mod = 0,
-                    cooldown = { standard = 0, gcd = 1.5 }
-                },
+            ["match"] = {
+                ["damageOverTime"] = '(%d+) damage over (%d+)',
+                ["cost"] = '(%d+) Rage'
+            },
+            ["data"] = {
+                dot = { total = 147, duration = 21, interval = 3 },
+                castTime = 0,
+                mod = 0,
+                cooldown = { standard = 0, gcd = 1.5 }
             },
             ["info"] = { school = { "Physical" } },
             ["toolTipData"] = {
