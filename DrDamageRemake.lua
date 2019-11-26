@@ -1,12 +1,13 @@
 local _, playerClass = UnitClass("player")
 local playerHealer = (playerClass == "PRIEST") or (playerClass == "SHAMAN") or
-                         (playerClass == "PALADIN") or (playerClass == "DRUID")
+        (playerClass == "PALADIN") or (playerClass == "DRUID")
 local playerCaster = (playerClass == "MAGE") or (playerClass == "PRIEST") or
-                         (playerClass == "WARLOCK")
+        (playerClass == "WARLOCK")
 local playerMelee = (playerClass == "ROGUE") or (playerClass == "WARRIOR") or
-                        (playerClass == "HUNTER")
+        (playerClass == "HUNTER")
 local playerHybrid = (playerClass == "DRUID") or (playerClass == "PALADIN") or
-                         (playerClass == "SHAMAN")
+        (playerClass == "SHAMAN")
+
 
 -- Libraries
 local L = LibStub("AceLocale-3.0"):GetLocale("DrDamage", true)
@@ -15,11 +16,11 @@ local ACD = LibStub("AceConfigDialog-3.0")
 local LSM = LibStub:GetLibrary("LibSharedMedia-3.0", true)
 local DrDamage = DrDamage
 DrDamageRemake = LibStub("AceAddon-3.0"):NewAddon("DrDamageRemake",
-                                                  "AceHook-3.0",
-                                                  "AceConsole-3.0",
-                                                  "AceEvent-3.0",
-                                                  "AceTimer-3.0", "AceComm-3.0",
-                                                  "AceSerializer-3.0")
+    "AceHook-3.0",
+    "AceConsole-3.0",
+    "AceEvent-3.0",
+    "AceTimer-3.0", "AceComm-3.0",
+    "AceSerializer-3.0")
 
 -- General
 local settings
@@ -40,15 +41,26 @@ local string_len = string.len
 local select = select
 local next = next
 
+local playerLogin = CreateFrame("frame")
+playerLogin:RegisterEvent("PLAYER_LOGIN")
+playerLogin:SetScript("OnEvent", function()
+    DrDamageRemake:OnInitialize()
+end)
 
 -- Module
 local GameTooltip = GameTooltip
 local Utils = DrDamageRemake
+local ActionButton_GetPagedID = ActionButton_GetPagedID
+local GetSpellInfo = GetSpellInfo
+local GetMacroSpell = GetMacroSpell
+local GetMacroBody = GetMacroBody
+local GetActionInfo = GetActionInfo
 
 -- Module variables
 local playerCompatible, playerEvents, DrD_Font, updateSetItems, dmgMod
 local spellInfo, talentInfo, talents, PlayerHealth, TargetHealth, classColour
 local ModStateEvent, Casts, ManaCost, PowerCost
+local ABobjects = {}
 
 function round(num, numDecimalPlaces)
     if numDecimalPlaces and numDecimalPlaces > 0 then
@@ -58,7 +70,9 @@ function round(num, numDecimalPlaces)
     return math_floor(num + 0.5)
 end
 
-function DrDamageRemake:OnInitialize() end
+function DrDamageRemake:OnInitialize()
+    self:loadABList()
+end
 
 local function addLine(tooltip, property, value, type)
     type = type or ''
@@ -80,7 +94,7 @@ local function addLine(tooltip, property, value, type)
     }
 
     tooltip:AddDoubleLine(colourType['property'](property),
-                          colourType[type](value))
+        colourType[type](value))
     tooltip:Show()
 end
 
@@ -112,9 +126,7 @@ function DrDamageRemake:ProcessOnShow(tooltip, ...)
             end
 
             Utils:MainHandDamage()
-
         end
-
     end
 
     self.hooks[GameTooltip]["OnTooltipSetSpell"](tooltip, ...)
@@ -178,6 +190,43 @@ function DrDamageRemake:ParseTooltip(tooltip, spell)
                 end
             end
         end
+    end
+end
+
+function DrDamageRemake:loadABList()
+    for i = 1, 6 do
+        for j = 1, 12 do
+            table.insert(ABobjects, _G[((select(i, "ActionButton", "MultiBarBottomLeftButton", "MultiBarBottomRightButton", "MultiBarRightButton", "MultiBarLeftButton", "BonusActionButton")) .. j)])
+        end
+    end
+    local thingType, _, _ = GetActionInfo(2)
+    for i = 1, #ABobjects do
+        local button = ABobjects[i]
+        if button then
+            local drd
+            local id = ActionButton_GetPagedID(button)
+            if id then
+                local gtype, pid = GetActionInfo(id)
+                local name, rank
+                if gtype == "spell" and pid ~= 0 then
+                    name, rank = GetSpellInfo(pid)
+                elseif gtype == "macro" then
+                    name, rank = GetMacroSpell(pid)
+                end
+                if name then
+                    drd = button:CreateFontString(button:GetName() .. "drd", "OVERLAY")
+                    drd:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 0, 6)
+                    drd:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 0, 0)
+                    drd:SetJustifyH("CENTER")
+                    drd:SetTextColor(255,255,255)
+                    drd:SetFont(GameFontNormal:GetFont(), 11, "OUTLINE", "MONOCHROME")
+                    drd:SetText('100')
+                    drd:Show()
+                end
+            end
+
+        end
+--        self:CheckAction(button, button:GetName(), ActionButton_GetPagedID, spell, mana, disable)
     end
 end
 
