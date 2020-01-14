@@ -124,6 +124,8 @@ function DrDamageRemake:ProcessOnShow(tooltip, ...)
             for i, v in ipairs(tooltipData) do
                 addLine(tooltip, v.label, v.calculation(details["data"]), v.type)
             end
+            --            self:loadABList({ name = name, val = tooltipData[1].calculation(details["data"])})
+            --            self:loadABList({ name= name, val= 23})
 
             Utils:MainHandDamage()
         end
@@ -162,7 +164,7 @@ function DrDamageRemake:ParseTooltip(tooltip, spell)
                     matcher = spell["match"]['cost']
                     if matcher and text:match(matcher) then
                         local cost = text:match(matcher)
-                        spell["data"].rageCost = tonumber(cost)
+                        spell["data"].cost = tonumber(cost)
                     end
                     matcher = spell["match"]['damage']
                     if matcher and text:match(matcher) then
@@ -193,7 +195,7 @@ function DrDamageRemake:ParseTooltip(tooltip, spell)
     end
 end
 
-function DrDamageRemake:loadABList()
+function DrDamageRemake:loadABList(tt)
     for i = 1, 6 do
         for j = 1, 12 do
             table.insert(ABobjects, _G[((select(i, "ActionButton", "MultiBarBottomLeftButton", "MultiBarBottomRightButton", "MultiBarRightButton", "MultiBarLeftButton", "BonusActionButton")) .. j)])
@@ -220,7 +222,11 @@ function DrDamageRemake:loadABList()
                     drd:SetJustifyH("CENTER")
                     drd:SetTextColor(255,255,255)
                     drd:SetFont(GameFontNormal:GetFont(), 11, "OUTLINE", "MONOCHROME")
-                    drd:SetText('100')
+                    --                    drd:SetText('100')
+                    if tt and tt.name == name then
+                        drd:SetText(tt.val)
+                    end
+
                     drd:Show()
                 end
             end

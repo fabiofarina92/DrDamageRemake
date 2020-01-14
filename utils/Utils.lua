@@ -11,6 +11,7 @@ local math_floor = math.floor
 local UnitLevel = UnitLevel
 
 function DrDamageRemake:GetCurrentAttackPower(baseAp)
+    baseAp = baseAp or true
     local base, posBuff, negBuff = UnitAttackPower("player")
     if baseAp then
         return base
@@ -78,7 +79,7 @@ function DrDamageRemake:MainHandDamage()
     local fullDamage = (baseDamage + physicalBonusPos + physicalBonusNeg) * percent
     local damagePerSecond = (max(fullDamage, 1) / speed)
 
-    return { min = minDamage, max = maxDamage, base = baseDamage, full = fullDamage, dps = damagePerSecond, spread = damageSpread }
+    return { min = minDamage, max = maxDamage, base = baseDamage, full = fullDamage, dps = damagePerSecond, spread = damageSpread, weaponSpeed = speed }
 end
 
 function DrDamageRemake:OffHandDamage()

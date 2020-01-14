@@ -3,15 +3,20 @@ local UnitStat = UnitStat
 local GetInventoryItemLink = GetInventoryItemLink
 local GetShapeshiftForm = GetShapeshiftForm
 local critModifier = 2.0
+
+local normalisedSpeedDaggers = 1.7
+local normalisedSpeedOneHander = 2.4
+local normalisedSpeedTwoHander = 3.3
+
 local Utils = DrDamageRemake
 
-function DrDamageRemake:getBlockValue(data)
-    local stat, effectiveStat, posBuff, negBuff = UnitStat("player", 1)
-
-    local strength = stat + posBuff + negBuff
-
-    local stats = GetItemStats(GetInventoryItemLink("player", 17))
-end
+--function DrDamageRemake:getBlockValue(data)
+--    local stat, effectiveStat, posBuff, negBuff = UnitStat("player", 1)
+--
+--    local strength = stat + posBuff + negBuff
+--
+--    local stats = GetItemStats(GetInventoryItemLink("player", 17))
+--end
 
 function DrDamageRemake:PlayerData()
     self.classColour = 'bf5d39'
@@ -49,7 +54,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local baseDamage = Utils:DefaultDamageCalculationAmount(data)
-                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                        return Utils:DamagePerPowerCost(baseDamage, data.cost)
                     end)
                 },
                 [4] = {
@@ -95,7 +100,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local baseDamage = Utils:DefaultDamageCalculationAmount(data)
-                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                        return Utils:DamagePerPowerCost(baseDamage, data.cost)
                     end)
                 },
                 [4] = {
@@ -125,7 +130,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = 15
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -134,7 +139,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = 30
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -143,7 +148,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = 45
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -152,7 +157,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = 60
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -161,7 +166,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = 100
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -170,10 +175,10 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local rage = UnitPower('player');
-                        if rage < data.rageCost then
+                        if rage < data.cost then
                             return 'Insufficient rage'
                         end
-                        local amount = data.damage + (data.extra * (rage - data.rageCost));
+                        local amount = data.damage + (data.extra * (rage - data.cost));
                         return string.format('%s (%s)', amount, amount * critModifier)
                     end)
                 },
@@ -196,7 +201,8 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local mainHandDamage = Utils:MainHandDamage()
-                        return round(mainHandDamage.base, 2) + data.extra;
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return round(damageCalculation, 2) + data.extra;
                     end)
                 },
                 [2] = {
@@ -204,23 +210,26 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local mainHandDamage = Utils:MainHandDamage()
-                        return round((mainHandDamage.base + data.extra) * critModifier, 2);
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return round(damageCalculation * critModifier, 2);
                     end)
                 },
                 [3] = {
                     label = "DPR",
                     type = 'Damage',
                     calculation = (function(data)
-                        local damage = Utils:MainHandDamage()
-                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.rageCost)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return Utils:DamagePerPowerCost(damageCalculation, data.cost)
                     end)
                 },
                 [4] = {
                     label = "DPS",
                     type = 'Damage',
                     calculation = (function(data)
-                        local damage = Utils:MainHandDamage()
-                        return Utils:DamagePerSecond(damage.base + data.extra, data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return Utils:DamagePerSecond(damageCalculation, data)
                     end)
                 }
             }
@@ -257,7 +266,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local damage = Utils:MainHandDamage()
-                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.rageCost)
+                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.cost)
                     end)
                 },
                 [4] = {
@@ -303,7 +312,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local damage = Utils:MainHandDamage()
-                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.rageCost)
+                        return Utils:DamagePerPowerCost(damage.base + data.extra, data.cost)
                     end)
                 },
                 [4] = {
@@ -316,6 +325,58 @@ function DrDamageRemake:PlayerData()
                 }
             }
         },
+        --        ['Mortal Strike'] = {
+        --            ["name"] = "Mortal Strike",
+        --            ["match"] = {
+        --                ["extra"] = 'damage plus (%d+)',
+        --                ["cost"] = '(%d+) Rage',
+        --            },
+        --            ["data"] = {
+        --                mod = 0,
+        --                cooldown = { standard = 6, gcd = 1.5 }
+        --            },
+        --            ["info"] = { school = { "Physical" } },
+        --            ["toolTipData"] = {
+        --                [1] = {
+        --                    label = "Average",
+        --                    type = 'Damage',
+        --                    calculation = (function(data)
+        --                        local mainHandDamage = Utils:MainHandDamage()
+        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+        --                        return round(damageCalculation, 2);
+        --                        --                        return self:DefaultDamageCalculationAmount(data)
+        --                    end)
+        --                },
+        --                [2] = {
+        --                    label = "Crit",
+        --                    type = 'Damage',
+        --                    calculation = (function(data)
+        --                        local mainHandDamage = Utils:MainHandDamage()
+        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+        --                        return round(damageCalculation * critModifier, 2);
+        --                        --                        return self:DefaultCritDamageCalculationAmount(data, critModifier)
+        --                    end)
+        --                },
+        --                [3] = {
+        --                    label = "DPR",
+        --                    type = 'Damage',
+        --                    calculation = (function(data)
+        --                        local mainHandDamage = Utils:MainHandDamage()
+        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+        --                        return Utils:DamagePerPowerCost(damageCalculation, data.cost)
+        --                    end)
+        --                },
+        --                [4] = {
+        --                    label = "DPS",
+        --                    type = 'Damage',
+        --                    calculation = (function(data)
+        --                        local mainHandDamage = Utils:MainHandDamage()
+        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+        --                        return Utils:DamagePerSecond(damageCalculation, data)
+        --                    end)
+        --                }
+        --            }
+        --        },
         ['Whirlwind'] = {
             ["name"] = "Whirlwind",
             ["id"] = 1680,
@@ -324,7 +385,7 @@ function DrDamageRemake:PlayerData()
                 ["data"] = {
                     lowerBound = 0,
                     upperBound = 0,
-                    rageCost = 25,
+                    cost = 25,
                     castTime = 0,
                     mod = 0,
                     cooldown = { standard = 10, gcd = 1.5 }
@@ -355,7 +416,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local damage = Utils:MainHandDamage()
-                        return Utils:DamagePerPowerCost(damage.base, data.rageCost)
+                        return Utils:DamagePerPowerCost(damage.base, data.cost)
                     end)
                 },
                 [4] = {
@@ -404,7 +465,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local baseDamage = Utils:DefaultDamageCalculationAmount(data)
-                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                        return Utils:DamagePerPowerCost(baseDamage, data.cost)
                     end)
                 },
                 [4] = {
@@ -454,7 +515,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         local baseDamage = Utils:DefaultDamageCalculationAmount(data)
-                        return Utils:DamagePerPowerCost(baseDamage, data.rageCost)
+                        return Utils:DamagePerPowerCost(baseDamage, data.cost)
                     end)
                 },
                 [4] = {
@@ -474,7 +535,7 @@ function DrDamageRemake:PlayerData()
                 ["data"] = {
                     lowerBound = 0,
                     upperBound = 0,
-                    rageCost = 30,
+                    cost = 30,
                     castTime = 0,
                     mod = 0.45,
                     cooldown = { standard = 6, gcd = 1.5 }
@@ -485,7 +546,7 @@ function DrDamageRemake:PlayerData()
                 ["data"] = {
                     lowerBound = 0,
                     upperBound = 0,
-                    rageCost = 30,
+                    cost = 30,
                     castTime = 0,
                     mod = 0.45,
                     cooldown = { standard = 6, gcd = 1.5 }
@@ -514,7 +575,7 @@ function DrDamageRemake:PlayerData()
                     type = 'Damage',
                     calculation = (function(data)
                         return (Utils:GetCurrentAttackPower() *
-                                data.mod) / data.rageCost
+                                data.mod) / data.cost
                     end)
                 },
                 [4] = {
