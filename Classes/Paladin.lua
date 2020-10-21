@@ -20,19 +20,22 @@ end
 function defaultHealingCalculation(data)
     local calculation = defaultHealingCalculationAmount(data)
     return string.format("%s (%s - %s)", calculation, data.lowerBound,
-                         data.upperBound)
+        data.upperBound)
 end
 
 function defaultHealingCritCalculation(data)
     local calculation = defaultHealingCritCalculationAmount(data)
     return string.format("%s (%s - %s)", calculation,
-                         (data.lowerBound * critModifier),
-                         (data.upperBound * critModifier))
+        (data.lowerBound * critModifier),
+        (data.upperBound * critModifier))
 end
 
 function castCountUntilOom(data)
-    local castCount = math.floor(UnitPowerMax("player", 0) / data.manaCost)
-    return castCount
+    if data.cost then
+        local castCount = math.floor(UnitPowerMax("player", 0) / data.cost)
+        return castCount
+    end
+    return 0
 end
 
 function totalHealingUntilOom(data)
@@ -40,28 +43,36 @@ function totalHealingUntilOom(data)
 end
 
 function healingPerMana(data)
-    local calculation = defaultHealingCalculationAmount(data)
-    return round(calculation / data.manaCost, 2)
+    if data.cost then
+        local calculation = defaultHealingCalculationAmount(data)
+        return round(calculation / data.cost, 2)
+    end
+    return 0
 end
 
 function healingPerSecond(data)
-    return round(defaultHealingCalculationAmount(data) / data.castTime, 2)
+    if data.castTime then
+        return round(defaultHealingCalculationAmount(data) / data.castTime, 2)
+    end
+    return 0
 end
 
 function DrDamageRemake:PlayerData()
     self.classColour = 'f542c8'
     self.spellInfo = {
-        [635] = {
+        ['Holy Light'] = {
             ["name"] = "Holy Light",
-            ["id"] = 635,
-            ["rank"] = 1,
-            ["data"] = {
-                lowerBound = 42,
-                upperBound = 51,
-                manaCost = 35,
-                castTime = 2.5
+            ["match"] = {
+                ["damageRange"] = '(%d+) to (%d+)',
+                ["cooldown"] = '(%d+) sec cooldown',
+                ["cost"] = '(%d+) Mana'
             },
-            ["info"] = {school = {"Holy"}},
+            ["data"] = {
+                mod = 0.10,
+                cooldown = { standard = 0, gcd = 1.5 },
+                level = { min = 1, max = 5 },
+            },
+            ["info"] = { school = { "Holy" } },
             ["toolTipData"] = {
                 [1] = {
                     label = "Average",
@@ -119,79 +130,7 @@ function DrDamageRemake:PlayerData()
                         return string.format("%.0f", GetSpellBonusHealing())
                     end)
                 }
-
             }
-
         },
-        [639] = {
-            ["name"] = "Holy Light",
-            ["id"] = 639,
-            ["rank"] = 2,
-            ["data"] = {
-                lowerBound = 79,
-                upperBound = 94,
-                manaCost = 60,
-                castTime = 2.5
-            },
-            ["info"] = {school = {"Holy"}},
-            ["toolTipData"] = {
-                [1] = {
-                    label = "Average",
-                    type = 'Heal',
-                    calculation = (function(data)
-                        return defaultHealingCalculation(data)
-                    end)
-                },
-                [2] = {
-                    label = "Average Crit",
-                    type = 'Heal',
-                    calculation = (function(data)
-                        return defaultHealingCritCalculation(data)
-                    end)
-                },
-                [3] = {
-                    label = "Casts until oom",
-                    type = 'Mana',
-                    calculation = (function(data)
-                        return castCountUntilOom(data)
-                    end)
-                },
-                [4] = {
-                    label = "Total until oom",
-                    type = 'Mana',
-                    calculation = (function(data)
-                        return totalHealingUntilOom(data)
-                    end)
-                },
-                [5] = {
-                    label = "HPM",
-                    type = 'Mana',
-                    calculation = (function(data)
-                        return healingPerMana(data)
-                    end)
-                },
-                [6] = {
-                    label = "HPS",
-                    type = 'Heal',
-                    calculation = (function(data)
-                        return healingPerSecond(data)
-                    end)
-                },
-                [7] = {
-                    label = "Crit",
-                    type = 'Heal',
-                    calculation = (function(data)
-                        return format("%.2f%%", GetSpellCritChance())
-                    end)
-                },
-                [8] = {
-                    label = "HP",
-                    type = 'Heal',
-                    calculation = (function(data)
-                        return format("%.0f", GetSpellBonusHealing())
-                    end)
-                }
-            }
-        }
     }
 end
