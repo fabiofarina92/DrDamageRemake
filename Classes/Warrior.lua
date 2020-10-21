@@ -325,58 +325,58 @@ function DrDamageRemake:PlayerData()
                 }
             }
         },
-        --        ['Mortal Strike'] = {
-        --            ["name"] = "Mortal Strike",
-        --            ["match"] = {
-        --                ["extra"] = 'damage plus (%d+)',
-        --                ["cost"] = '(%d+) Rage',
-        --            },
-        --            ["data"] = {
-        --                mod = 0,
-        --                cooldown = { standard = 6, gcd = 1.5 }
-        --            },
-        --            ["info"] = { school = { "Physical" } },
-        --            ["toolTipData"] = {
-        --                [1] = {
-        --                    label = "Average",
-        --                    type = 'Damage',
-        --                    calculation = (function(data)
-        --                        local mainHandDamage = Utils:MainHandDamage()
-        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
-        --                        return round(damageCalculation, 2);
-        --                        --                        return self:DefaultDamageCalculationAmount(data)
-        --                    end)
-        --                },
-        --                [2] = {
-        --                    label = "Crit",
-        --                    type = 'Damage',
-        --                    calculation = (function(data)
-        --                        local mainHandDamage = Utils:MainHandDamage()
-        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
-        --                        return round(damageCalculation * critModifier, 2);
-        --                        --                        return self:DefaultCritDamageCalculationAmount(data, critModifier)
-        --                    end)
-        --                },
-        --                [3] = {
-        --                    label = "DPR",
-        --                    type = 'Damage',
-        --                    calculation = (function(data)
-        --                        local mainHandDamage = Utils:MainHandDamage()
-        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
-        --                        return Utils:DamagePerPowerCost(damageCalculation, data.cost)
-        --                    end)
-        --                },
-        --                [4] = {
-        --                    label = "DPS",
-        --                    type = 'Damage',
-        --                    calculation = (function(data)
-        --                        local mainHandDamage = Utils:MainHandDamage()
-        --                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
-        --                        return Utils:DamagePerSecond(damageCalculation, data)
-        --                    end)
-        --                }
-        --            }
-        --        },
+        ['Mortal Strike'] = {
+            ["name"] = "Mortal Strike",
+            ["match"] = {
+                ["extra"] = 'damage plus (%d+)',
+                ["cost"] = '(%d+) Rage',
+            },
+            ["data"] = {
+                mod = 0,
+                cooldown = { standard = 6, gcd = 1.5 }
+            },
+            ["info"] = { school = { "Physical" } },
+            ["toolTipData"] = {
+                [1] = {
+                    label = "Average",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return round(damageCalculation, 2);
+                        --                        return self:DefaultDamageCalculationAmount(data)
+                    end)
+                },
+                [2] = {
+                    label = "Crit",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return round(damageCalculation * critModifier, 2);
+                        --                        return self:DefaultCritDamageCalculationAmount(data, critModifier)
+                    end)
+                },
+                [3] = {
+                    label = "DPR",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return Utils:DamagePerPowerCost(damageCalculation, data.cost)
+                    end)
+                },
+                [4] = {
+                    label = "DPS",
+                    type = 'Damage',
+                    calculation = (function(data)
+                        local mainHandDamage = Utils:MainHandDamage()
+                        local damageCalculation = mainHandDamage.base + data.extra + (Utils:GetCurrentAttackPower() / 14) * normalisedSpeedTwoHander
+                        return Utils:DamagePerSecond(damageCalculation, data)
+                    end)
+                }
+            }
+        },
         ['Whirlwind'] = {
             ["name"] = "Whirlwind",
             ["id"] = 1680,
@@ -494,7 +494,7 @@ function DrDamageRemake:PlayerData()
                     label = "Average",
                     type = 'Damage',
                     calculation = (function(data)
-                        self:getBlockValue(data)
+--                        self:getBlockValue(data)
                         return string.format("%s (%s - %s)",
                             Utils:DefaultDamageCalculationAmount(data), (data.lowerBound),
                             (data.upperBound))
@@ -543,6 +543,17 @@ function DrDamageRemake:PlayerData()
             },
             [23892] = {
                 ["rank"] = 2,
+                ["data"] = {
+                    lowerBound = 0,
+                    upperBound = 0,
+                    cost = 30,
+                    castTime = 0,
+                    mod = 0.45,
+                    cooldown = { standard = 6, gcd = 1.5 }
+                },
+            },
+            [23894] = {
+                ["rank"] = 4,
                 ["data"] = {
                     lowerBound = 0,
                     upperBound = 0,

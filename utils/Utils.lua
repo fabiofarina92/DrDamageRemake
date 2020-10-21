@@ -10,6 +10,16 @@ local GetSpellCritChance = GetSpellCritChance
 local math_floor = math.floor
 local UnitLevel = UnitLevel
 
+local SPELL_TYPES = {
+    ['physical'] = 1,
+    ['holy'] = 2,
+    ['fire'] = 3,
+    ['nature'] = 4,
+    ['frost'] = 5,
+    ['shadow'] = 6,
+    ['arcane'] = 7
+}
+
 function DrDamageRemake:GetCurrentAttackPower(baseAp)
     baseAp = baseAp or true
     local base, posBuff, negBuff = UnitAttackPower("player")
@@ -115,4 +125,8 @@ function DrDamageRemake:GetSpellDamageRange(min, max, baseLowerBound, baseUpperB
 
 
     return { newLower = baseLowerBound + oddCount, newUpper = baseUpperBound + evenCount }
+end
+
+function DrDamageRemake:GetSpellDamageByType(type)
+    return GetSpellBonusDamage(type)
 end
